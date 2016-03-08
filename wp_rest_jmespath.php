@@ -30,7 +30,16 @@ call_user_func(function () {
         require_once __DIR__ . '/vendor/autoload.php';
 
         // Filter the data using the given path
-        $response->set_data(JmesPath\search($query, $response->get_data()));
+        try {
+            $response->set_data(JmesPath\search($query, $response->get_data()));
+        } catch (\Exception $e) {
+            $message = sprintf(
+                'Bad JMESPath query "%s": %s.',
+                $query,
+                $e->getMessage()
+            );
+            $response->set_data(new \WP_Error(400, $message));
+        }
 
         return $response;
     }, 20, 3);
