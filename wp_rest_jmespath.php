@@ -15,32 +15,31 @@
  * Plugin Name: WP REST JMESPath
  * Description: Add support for JMESPath queries to the WP REST API.
  */
-call_user_func(function () {
-    add_filter('rest_post_dispatch', function ($response, $server, $request) {
-        if ($response->is_error()) {
-            // Don't process error response
-            return $response;
-        }
-
-        if (!($query = @$request->get_query_params()['_query'])) {
-            // No requested query
-            return $response;
-        }
-
-        require_once __DIR__ . '/vendor/autoload.php';
-
-        // Filter the data using the given path
-        try {
-            $response->set_data(JmesPath\search($query, $response->get_data()));
-        } catch (\Exception $e) {
-            $message = sprintf(
-                'Bad JMESPath query "%s": %s.',
-                $query,
-                $e->getMessage()
-            );
-            $response->set_data(new \WP_Error(400, $message));
-        }
-
+function elyobo_wp_rest_jmespath_response ($response, $server, $request) {
+    if ($response->is_error()) {
+        // Don't process error responses
         return $response;
-    }, 20, 3);
-});
+    }
+
+    if (!($query = @$request->get_query_params()['_query'])) {
+        // No requested query, leave response as is
+        return $response;
+    }
+
+    // Filter the data using the given path
+    require_once __DIR__ . '/vendor/autoload.php';
+    try {
+        $response->set_data(JmesPath\search($query, $response->get_data()));
+    } catch (Exception $e) {
+        $message = sprintf(
+            'Bad JMESPath query "%s": %s.',
+            $query,
+            $e->getMessage()
+        );
+        $response->set_data(new WP_Error(400, $message));
+    }
+
+    return $response;
+}
+
+add_filter('rest_post_dispatch', 'elyobo_wp_rest_jmespath_response', 20, 3);
