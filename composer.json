@@ -1,0 +1,5 @@
+{
+    "require": {
+        "mtdowling/jmespath.php": "2.*"
+    }
+}
