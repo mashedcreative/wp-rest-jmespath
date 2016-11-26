@@ -32,11 +32,15 @@ function elyobo_wp_rest_jmespath_response ($response, $server, $request) {
         $response->set_data(JmesPath\search($query, $response->get_data()));
     } catch (Exception $e) {
         $message = sprintf(
-            'Bad JMESPath query "%s": %s.',
+            'Unable to apply JMESPath query.',
             $query,
             $e->getMessage()
         );
-        $response->set_data(new WP_Error(400, $message));
+        $response->set_data(array(
+            'code'    => 400,
+            'message' => $message,
+            'data'    => ['query'  => $query, 'error' => $e->getMessage()],
+        ));
     }
 
     return $response;
