@@ -50,7 +50,7 @@ function elyobo_wp_rest_jmespath_response($response, $server, $request) {
         return $response;
     }
 
-    $response->set_data(elyobo_wp_rest_jmespath_apply($query, $response));
+    $response->set_data(elyobo_wp_rest_jmespath_apply($query, $response->get_data()));
 
     return $response;
 }
